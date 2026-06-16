@@ -12,6 +12,7 @@ Aligned across certs.lol and ns.lol as of 2026-06-15. Yoke.lol still uses its ow
 2. **Each tool has a signature accent** — that's identity, not drift
 3. **Everything else is shared** — backgrounds, surfaces, text, borders, semantic colors, fonts, layout chrome, footer, input treatment
 4. **Extend, don't override** — Yoke's 12 themes extend the base; they don't replace it
+5. **Click-to-copy everywhere** — every data value a user might want to grab (DNS records, IPs, headers, scores, cert details) is clickable to copy. Hover shows `cursor: pointer` with accent highlight; click copies to clipboard and shows a brief "copied" confirmation. This is the family's core interaction pattern — output exists to be used, not just read
 
 ## Canonical Tokens
 
@@ -341,13 +342,17 @@ For feeder tools (certs → yoke, ns → yoke), a styled link to the full report
 
 ### Theme Toggle
 
-All tools get a light/dark toggle fixed in the top-right corner:
+All tools get a light/dark toggle fixed in the top-right corner, using **words not emoji**:
 
 ```html
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀️</button>
+<div class="theme-toggle" role="radiogroup" aria-label="Theme">
+  <button class="theme-opt active" role="radio" aria-checked="true">Dark</button>
+  <button class="theme-opt" role="radio" aria-checked="false">Light</button>
+</div>
 ```
 
-- Shows `☀️` in dark mode (click to go light), `🌙` in light mode (click to go dark)
+- Segmented control: two buttons, active state gets `--accent` background
+- Labels are "Dark" and "Light" — no emoji (☀️/🌙)
 - localStorage key: `{tool}-theme` (e.g. `certs-theme`, `ns-theme`)
 - On load: check localStorage → system preference → default dark
 
@@ -356,18 +361,30 @@ All tools get a light/dark toggle fixed in the top-right corner:
   position: fixed;
   top: 16px;
   right: 16px;
-  background: var(--surface);
-  color: var(--muted);
+  z-index: 100;
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 12px;
-  cursor: pointer;
+  background: var(--surface);
   font-family: var(--font-mono);
   font-size: 11px;
-  z-index: 100;
-  transition: all .2s;
 }
-.theme-toggle:hover { color: var(--text); border-color: var(--accent) }
+.theme-opt {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--dim);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.theme-opt.active {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+.theme-opt:not(.active):hover { color: var(--text) }
 ```
 
 Yoke additionally has its 12-theme dropdown — that extends rather than replaces.
@@ -494,7 +511,8 @@ a:hover { text-decoration: underline }
 - Light + dark theme ✅
 - Terminal prompt input ✅
 - Centered footer with family links ✅
-- Theme toggle (emoji-only) ✅
+- Theme toggle ⚠️ (still emoji — needs word-based update)
+- Click-to-copy on data values ✅
 - Skip-nav ✅
 - `:focus-visible` ✅
 - Rate limit pill ✅
@@ -504,7 +522,8 @@ a:hover { text-decoration: underline }
 - Light + dark theme ✅
 - Terminal prompt input ✅
 - Centered footer with family links ✅
-- Theme toggle (emoji-only) ✅
+- Theme toggle ⚠️ (still emoji — needs word-based update)
+- Click-to-copy on data values ✅
 - Skip-nav ✅
 - `:focus-visible` ✅
 - Rate limit pill ✅
