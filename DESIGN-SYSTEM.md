@@ -2,30 +2,9 @@
 
 > One design system, one aesthetic, every tool. This spec defines the canonical design tokens, layout patterns, and component styles that all .lol family tools must share. Individual tools can extend (Yoke's 12 themes, score visualizations) but the baseline must be identical.
 
-## Problem
+## Status
 
-All three shipped tools drift from each other:
-
-| Token | certs.lol | ns.lol | yoke.lol |
-|-------|-----------|--------|----------|
-| **Background** | `#0a0a0f` | `#0a0e17` | `#0f1419` |
-| **Surface** | `#111116` | `#111827` | `#161b22` |
-| **Text** | `#d8d8e0` | `#e2e8f0` | `#e6edf3` |
-| **Muted** | `#8e8e9a` | `#64748b` | `#7d8590` |
-| **Dim** | `#5c5c6b` | `#475569` | `#7d8590` |
-| **Accent** | `#9b8afb` (purple) | `#22d3ee` (cyan) | `#58a6ff` (blue) |
-| **Success** | `#38d9a9` | `#22c55e` | `#3fb950` |
-| **Warning** | `#fbbf24` | `#eab308` | `#d29922` |
-| **Error** | `#f87171` | `#ef4444` | `#f85149` |
-| **Border** | `#1c1c24` | `#1e293b` | `#21262d` |
-| **Font vars** | `--mono`, `--sans` | `--mono`, `--sans` | `--font-mono`, `--font-ui` |
-| **Input** | Terminal prompt + underline | Boxed + button | Rounded + glow |
-| **Header** | Left, baseline | Centered hero | Left flex row |
-| **Footer** | Left, 10px mono | Centered, 0.78rem | Centered, 12px |
-| **Theme toggle** | Fixed top-right (light/dark) | None | 12-theme dropdown |
-| **Light theme** | ✅ full | ❌ none | ✅ full |
-
-No two sites agree on any of these.
+Aligned across certs.lol and ns.lol as of 2026-06-15. Yoke.lol still uses its own design language (React + Tailwind) and needs migration.
 
 ## Design Principles
 
@@ -148,128 +127,34 @@ The theme system is a Yoke differentiator. Other tools get dark + light only.
 
 ## Layout Components
 
-### Header
-
-Canonical pattern (all tools):
-
-```
-[logo] [tool name]  [mono tagline]              [theme toggle]
-```
-
-- Left-aligned, single row, baseline-aligned
-- Logo: 24px icon or text treatment
-- Tool name: `--font-sans`, 20px, weight 700, `--text`
-- Tagline: `--font-mono`, 11-13px, `--dim`
-- Divider between name and tagline: 1px `--border` vertical bar
-- Theme toggle: right-aligned
-
-Currently:
-- **certs.lol**: close but logo uses styled text spans
-- **ns.lol**: centered hero layout — needs to go left-aligned
-- **yoke.lol**: close already — just needs tagline in mono + consistent sizing
-
-### Search Input
-
-Canonical pattern: **terminal prompt style**
-
-```
-[accent prompt] [domain input with monospace] [blinking cursor]
-```
-
-- Container: bottom border 2px `--accent`, no box/background
-- Prompt: `--accent`, weight 600, `--font-mono`
-  - certs: `$ certs ▸`
-  - ns: `$ ns ▸`
-  - yoke: `$ yoke ▸`
-  - vrfy: `$ vrfy ▸`
-  - preflight: `$ preflight ▸`
-- Input: `--font-mono`, 14px, `--text`, transparent background
-- Blinking cursor: 7px × 14px `--accent` block, `step-end 1.1s`
-
-Currently:
-- **certs.lol**: ✅ already canonical
-- **ns.lol**: boxed input with button — needs terminal prompt treatment
-- **yoke.lol**: rounded glow bar — needs terminal prompt treatment
-
-**Note for Yoke:** The search bar currently supports a compare toggle and scan button. These can remain as inline elements after the prompt, but the visual base should match the terminal style.
-
-### Footer
-
-Canonical pattern:
-
-```
-[links · separated · by · dots]  [yoke badge]
-```
-
-- Font: `--font-mono`, 10-11px, `--faint`/`--dim`
-- Links: `--dim`, hover → `--muted`
-- Dot separator: `--border`
-- Standard links (all tools): `docs · github · privacy · terms · security.txt`
-- Tool-specific links as needed (CLI, API, extension, feedback)
-- Family links section: links to sibling tools
-- Yoke badge: right side, linked to `yoke.lol/{hostname}`
-- Left-aligned or centered — either is fine, but all tools must match
-
-Currently:
-- **certs.lol**: left-aligned, close to canonical
-- **ns.lol**: centered, family section, close
-- **yoke.lol**: centered, verbose, larger font
-
-Choose one alignment and apply everywhere. Recommendation: **centered** — it works better on narrow screens and all tools should have a family links row.
-
-### Family Links
-
-Every tool includes a "family" row in the footer linking to siblings:
-
-```html
-<div class="family">
-  <a href="https://yoke.lol">yoke</a>
-  <a href="https://certs.lol">certs</a>
-  <a href="https://ns.lol">ns</a>
-  <!-- current tool omitted from its own footer -->
-</div>
-```
-
-Styled as small bordered pills (ns.lol's current `.family` class). All tools use this.
-
-### Theme Toggle
-
-All tools get at minimum a light/dark toggle in the top-right corner:
-- Button: `--surface` bg, `--border` border, `--font-mono` 11px
-- Shows ☀️/🌙 icon
-- Position: fixed top-right (16px inset)
-
-Yoke additionally has its 12-theme dropdown — that extends rather than replaces. On Yoke, the toggle opens the full theme menu. On other tools, it's a simple click to swap.
-
-### Accessibility Baseline
-
-All tools must include:
-- `<html lang="en">`
-- Skip-nav link (`<a href="#main" class="skip-nav">Skip to content</a>`)
-- `.sr-only` utility class
-- `aria-label` on nav, search, and interactive elements
-- Focus indicators on all interactive elements
-- Color contrast meeting WCAG AA on text/bg combinations
-
-## Shared CSS Skeleton
-
-Reference implementation — each tool copies and extends:
+### Page Wrapper
 
 ```css
-/* ─── Base ─────────────────────────── */
-html { background: var(--bg) }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
-  transition: background .25s, color .25s;
+.page {
+  max-width: <tool-specific>;   /* 640px for certs, 960px for ns, etc. */
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
-a { color: var(--accent); text-decoration: none }
-a:hover { text-decoration: underline }
+```
 
-/* ─── Header ───────────────────────── */
+The class name MUST be `.page` on all tools. Max-width varies by content complexity — narrow tools (certs) use 640px, wider tools (ns) use 960px.
+
+Mobile override: `padding: 0 1rem` at the tool's mobile breakpoint.
+
+### Header
+
+```
+[logo][.lol]  [mono tagline]                    [theme toggle]
+```
+
+- Left-aligned flex row, baseline-aligned
+- Logo: styled text — tool name in `--text`, `.lol` span in `--accent`
+- Font: `--font-sans` via `.logo` class (inherits weight 800, letter-spacing -0.04em)
+- Tagline: `.tag` class, `--font-mono`, 11px, `--dim`
+- Pattern: `fast, API-first {what it does}` — no italic, no trailing period
+- Padding: `2rem 0 0`
+
+```css
 .hdr {
   padding: 2rem 0 0;
   display: flex;
@@ -283,14 +168,35 @@ a:hover { text-decoration: underline }
   text-decoration: none;
   color: var(--text);
 }
-.logo .accent { color: var(--accent) }
-.tagline {
+.logo span { color: var(--accent) }
+.tag {
   font-size: 11px;
   color: var(--dim);
   font-family: var(--font-mono);
 }
+```
 
-/* ─── Terminal input ───────────────── */
+Mobile (`@media(max-width:520px)`):
+```css
+.hdr { flex-direction: column; gap: 4px; padding-top: 2rem }
+```
+
+### Terminal Input
+
+The signature UX across the whole family.
+
+```
+$ {tool} ▸ domain.com_
+```
+
+- Container: bottom border 2px `--accent`, no box/background
+- Prompt elements: `$` + command name in `--accent`, weight 600
+- Chevron `▸` in `--dim`
+- Input: `--font-mono`, 14px, `--text`, transparent background
+- Blinking cursor: 7px × 14px `--accent` block, `step-end 1.1s`
+- Container has `outline: none` (bottom border serves as focus indicator)
+
+```css
 .input-wrap {
   margin-top: 2rem;
   border-bottom: 2px solid var(--accent);
@@ -300,9 +206,13 @@ a:hover { text-decoration: underline }
   display: flex;
   align-items: center;
   transition: border-color .25s;
+  outline: none;
 }
-.prompt { color: var(--accent); font-weight: 600; margin-right: 10px }
-.domain-input {
+.input-wrap form { display: contents }
+.p { color: var(--accent); font-weight: 600; margin-right: 10px }
+.cm { color: var(--accent); font-weight: 600 }
+.dm { color: var(--dim) }
+.di {
   background: none;
   border: none;
   color: var(--text);
@@ -310,20 +220,69 @@ a:hover { text-decoration: underline }
   font-size: 14px;
   outline: none;
   flex: 1;
+  min-width: 80px;
   caret-color: var(--accent);
 }
-.domain-input::placeholder { color: var(--faint) }
-.cursor {
+.di::placeholder { color: var(--faint) }
+.cur {
   display: inline-block;
   width: 7px;
   height: 14px;
   background: var(--accent);
-  animation: blink 1.1s step-end infinite;
+  animation: b 1.1s step-end infinite;
   vertical-align: text-bottom;
+  margin-left: 1px;
 }
-@keyframes blink { 50% { opacity: 0 } }
+@keyframes b { 0%, 100% { opacity: .7 } 50% { opacity: 0 } }
+```
 
-/* ─── Footer ───────────────────────── */
+### Empty State / Homepage
+
+When no domain is entered, show a minimal homepage:
+
+```
+[curl example in monospace]
+[3 clickable example domain buttons]
+```
+
+```css
+.examples {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.examples a {
+  padding: 6px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  text-decoration: none;
+  transition: background .2s;
+}
+.examples a:hover {
+  background: var(--surface-raised);
+  text-decoration: none;
+}
+```
+
+No marketing copy. The curl example IS the pitch.
+
+### Footer
+
+Canonical layout — three rows, centered, flex column with `gap: 10px`:
+
+```
+cli · docs · github · privacy · terms          ← tool links
+yoke · certs · ns                              ← family links (omit current tool)
+[yoke badge]                                   ← score badge
+```
+
+```css
 .footer {
   padding: 2rem 0 3rem;
   margin-top: 2rem;
@@ -331,33 +290,68 @@ a:hover { text-decoration: underline }
   font-size: 10px;
   color: var(--faint);
   font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
-.footer a { color: var(--dim); text-decoration: none }
-.footer a:hover { color: var(--muted) }
+.footer a { color: var(--dim); text-decoration: none; transition: color .2s }
+.footer a:hover { color: var(--muted); text-decoration: none }
 .footer-links {
   display: flex;
-  gap: 1.5rem;
   justify-content: center;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
 }
-.family {
+.footer-family {
   display: flex;
-  gap: 12px;
   justify-content: center;
-  margin-bottom: 12px;
+  gap: 16px;
 }
-.family a {
-  padding: 3px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 10px;
-  color: var(--dim);
-  transition: color .2s, border-color .2s;
-}
-.family a:hover { color: var(--accent); border-color: var(--accent) }
+.footer-family a { color: var(--faint) }
+.footer-family a:hover { color: var(--accent) }
+.yoke-badge { display: inline-block }
+.yoke-badge img { opacity: 0.6; transition: opacity .2s; vertical-align: middle }
+.yoke-badge:hover img { opacity: 1 }
+```
 
-/* ─── Theme toggle ─────────────────── */
+**Class names:** `.footer-links` and `.footer-family` (NOT `.foot-links` / `.foot-family`).
+
+### Cross-Link Hook
+
+For feeder tools (certs → yoke, ns → yoke), a styled link to the full report:
+
+```css
+.hook {
+  margin-top: 2.25rem;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.hook .ar { color: var(--accent); font-size: 14px }
+.hook .q { color: var(--muted) }
+.hook a { color: var(--accent); text-decoration: none; font-weight: 500 }
+.hook a:hover { text-decoration: underline }
+```
+
+### Theme Toggle
+
+All tools get a light/dark toggle fixed in the top-right corner:
+
+```html
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">☀️</button>
+```
+
+- Shows `☀️` in dark mode (click to go light), `🌙` in light mode (click to go dark)
+- localStorage key: `{tool}-theme` (e.g. `certs-theme`, `ns-theme`)
+- On load: check localStorage → system preference → default dark
+
+```css
 .theme-toggle {
   position: fixed;
   top: 16px;
@@ -374,69 +368,25 @@ a:hover { text-decoration: underline }
   transition: all .2s;
 }
 .theme-toggle:hover { color: var(--text); border-color: var(--accent) }
-
-/* ─── Accessibility ────────────────── */
-.skip-nav {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 200;
-  padding: 8px 16px;
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-decoration: none;
-  border-radius: 0 0 4px 0;
-}
-.skip-nav:focus { left: 0 }
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border: 0;
-}
 ```
+
+Yoke additionally has its 12-theme dropdown — that extends rather than replaces.
 
 ### Rate Limit Pill
 
-Every tool MUST show a rate limit pill when the API returns `X-RateLimit-*` headers. The pill is a persistent indicator that helps users understand their remaining quota.
+Every tool shows a rate limit pill when the API returns `X-RateLimit-*` headers.
 
-**Behavior:**
-- Appears after the first API response that includes rate limit headers
-- Shows `{remaining}/{limit}` (e.g. `87/120`)
-- When exhausted (`remaining === 0`), shows countdown: `Resets in {N}m`
-- Clickable/hoverable to expand details (usage bar + reset info)
-- On server-rendered SPAs (no client-side fetch), render the pill server-side using the rate limit values from the response
+**Position:** fixed bottom-right, 16px inset. Pill shape.
 
-**Position & Shape:**
-- Fixed bottom-right corner, 16px inset from edges
-- Pill shape: `border-radius: 20px`
-- Small: `font-size: 11px`, `padding: 6px 14px`
-- Font: `--font-mono`
-- `z-index: 100`
+**States:**
+| State   | Condition              | Appearance |
+|---------|------------------------|------------|
+| Normal  | >25% remaining         | `--dim`, `--border`, `opacity: 0.7` |
+| Warning | 10–25% remaining       | `--warn`, `border-color: --warn`, `opacity: 1` |
+| Danger  | <10% or exhausted      | `--err`, `border-color: --err`, `opacity: 1` |
 
-**Color States (based on % remaining):**
-- **Normal** (>25% remaining): `color: var(--dim)`, `border: 1px solid var(--border)`, `opacity: 0.7`
-- **Warning** (10-25% remaining): `color: var(--warn)`, `border-color: var(--warn)`, `opacity: 1`
-- **Danger** (<10% remaining or exhausted): `color: var(--err)`, `border-color: var(--err)`, `opacity: 1`
-- Transitions between states: `transition: opacity 0.3s, color 0.3s, border-color 0.3s`
+**Expanded details:** hover/click opens a dropdown card showing usage bar + reset time.
 
-**Expanded Details (hover/click):**
-- Dropdown card below the pill
-- Background: `var(--surface-raised)`, border: `var(--border)`, radius: `var(--radius)`
-- Contains:
-  - Status label: "API usage" / "Running low" / "Rate limit reached" (colored by state)
-  - Usage bar: 4px tall, `var(--border)` track, fill colored by state
-  - Text: "{used} of {limit} used this hour" in `var(--dim)`, 11px
-  - When exhausted: "Resets in {N} mins" + self-host link if applicable
-
-**CSS Reference:**
 ```css
 .rl-pill {
   position: fixed;
@@ -456,122 +406,132 @@ Every tool MUST show a rate limit pill when the API returns `X-RateLimit-*` head
 }
 .rl-pill.warn { color: var(--warn); border-color: var(--warn); opacity: 1 }
 .rl-pill.danger { color: var(--err); border-color: var(--err); opacity: 1 }
+.rl-detail {
+  display: none;
+  position: fixed;
+  bottom: 48px;
+  right: 16px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  min-width: 220px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  z-index: 101;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+.rl-detail.visible { display: block }
 ```
 
-**Canonical thresholds:**
-| State   | Condition                      | Appearance                |
-|---------|--------------------------------|---------------------------|
-| Normal  | remaining > 25% of limit      | Dim, subtle, low opacity  |
-| Warning | remaining 10-25% of limit     | Amber, full opacity       |
-| Danger  | remaining < 10% or exhausted  | Red, full opacity, border |
+## Accessibility Baseline
 
-**Implementation notes:**
-- Yoke (React SPA): `RateLimitPill` component reads headers from `api.ts` fetch responses
-- certs.lol / ns.lol (server-rendered + client-side fetch hybrid): render pill element in HTML, update via JS after fetch responses. For purely server-rendered pages, embed rate limit values in the HTML template
-- All tools parse the same three headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+All tools must include:
 
-## Per-Tool Change Map
+### Required elements
+- `<html lang="en">`
+- Skip-nav link: `<a href="#main" class="skip-nav">Skip to content</a>`
+- `.sr-only` utility class
+- `aria-label` on `<nav>`, `<form>`, and interactive elements
+- `:focus-visible` global indicator: `outline: 2px solid var(--accent); outline-offset: 2px`
+- WCAG AA color contrast on all text/bg combinations
 
-### yoke.lol (largest change — React SPA + Tailwind)
+### Skip-nav CSS
+```css
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--accent-fg, #fff);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-decoration: none;
+  border-radius: 0 0 6px 0;
+}
+.skip-nav:focus { left: 0 }
+```
 
-**CSS tokens (theme.css):**
-- Rename `--font-mono` → keep as-is OR alias both (Tailwind references `--font-mono`)
+### Screen reader utility
+```css
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+```
+
+## Body & Base Styles
+
+```css
+html { background: var(--bg) }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  transition: background .25s, color .25s;
+}
+a { color: var(--accent); text-decoration: none }
+a:hover { text-decoration: underline }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+```
+
+## Per-Tool Alignment Status
+
+### certs.lol ✅ (aligned 2026-06-15)
+- Canonical tokens ✅
+- Light + dark theme ✅
+- Terminal prompt input ✅
+- Centered footer with family links ✅
+- Theme toggle (emoji-only) ✅
+- Skip-nav ✅
+- `:focus-visible` ✅
+- Rate limit pill ✅
+
+### ns.lol ✅ (aligned 2026-06-15)
+- Canonical tokens ✅
+- Light + dark theme ✅
+- Terminal prompt input ✅
+- Centered footer with family links ✅
+- Theme toggle (emoji-only) ✅
+- Skip-nav ✅
+- `:focus-visible` ✅
+- Rate limit pill ✅
+- Wider `.page` (960px) — appropriate for propagation maps and resolver grids
+
+### yoke.lol ⏳ (not yet aligned)
+Largest change — React SPA + Tailwind.
+
+**Needs:**
+- Align dark base tokens: `--bg: #0a0a12`, `--surface: #12121a`, `--border: #1e1e2a`, etc.
+- Align text tokens: `--text: #e0e0ea`, `--muted: #7a7a8e`, `--dim: #55556a`, add `--faint`
+- Align semantic colors: `--ok`/`--warn`/`--err` to canonical values
 - Add `--font-sans` alias for `--font-ui`
-- Align dark base: `--bg: #0a0a12`, `--surface: #12121a`, `--border: #1e1e2a`
-- Align semantic: `--ok`/`--warn`/`--err` aliases alongside existing names
-- Align text: `--text: #e0e0ea`, `--muted: #7a7a8e`, `--dim: #55556a`
-- Add `--faint` token
-- Light theme: align to canonical light palette
+- Terminal prompt input (replace rounded glow bar)
+- Mono tagline in header
+- Footer: switch to `--font-mono` 10-11px, add family links, slim down
+- Skip-nav link
 - All 12 extended themes: update to use canonical token names
 
-**Header (App.tsx):**
-- Add mono tagline after logo
-- Align sizing/spacing to canonical pattern
-- Keep ThemeToggle component as-is (it's well-built)
-
-**Search input (App.tsx):**
-- Replace rounded glow bar with terminal prompt style
-- Add `$ yoke ▸` prompt prefix
-- Keep compare toggle + scan button as inline addons
-- Blinking cursor when idle
-
-**Footer (App.tsx):**
-- Switch to `--font-mono`, 10-11px
-- Add family links row (certs.lol, ns.lol)
-- Slim down link set
-- Match canonical centered layout
-
-**Accessibility:**
-- Add skip-nav link
-- Add `.sr-only` utility
-- Verify `lang="en"` on HTML
-
 **Preserved (no changes):**
-- 12-theme system ✅
-- Masonry panel grid ✅
-- DomainScore / scorecards / badges ✅
-- PDF reports ✅
-- Share cards / OG images ✅
-- Tab system ✅
-- Compare view ✅
-- All panel components ✅
-- SSE streaming ✅
-- CLI page, docs, API docs ✅
+- 12-theme system, masonry panel grid, score visualizations, PDF reports, share cards/OG images, tab system, compare view, SSE streaming, CLI/docs pages
 
-### certs.lol (smallest change — vanilla SPA)
+### vrfy.lol (not yet built)
+Will use canonical tokens from day one. Pink/magenta accent.
 
-**CSS tokens:**
-- Rename `--sans` → `--font-sans`, `--mono` → `--font-mono`
-- Align base colors to canonical (minor shifts from `#0a0a0f` → `#0a0a12`, etc.)
-- Add missing tokens: `--surface-raised`, `--surface-hover`, `--text-secondary`, `--faint`
-- Rename `--ok`/`--hi`/`--warn`/`--err` → keep `--ok`/`--warn`/`--err`, add `--info`
-
-**Light theme:**
-- Align to canonical light palette
-
-**Footer:**
-- Add family links row (yoke.lol, ns.lol)
-- Centered layout to match canonical
-
-**Accessibility:**
-- Already has skip-nav ✅
-- Verify all ARIA labels
-
-### ns.lol (medium change — vanilla SPA)
-
-**CSS tokens:**
-- Rename vars to canonical names
-- Align base colors from Tailwind-ish palette to canonical
-- Add light theme (currently dark only)
-- Add `--faint`, `--text-secondary`, `--surface-raised`, `--surface-hover`
-
-**Header:**
-- Switch from centered hero to left-aligned canonical header
-- Logo + "ns" + mono tagline inline
-
-**Search input:**
-- Replace boxed input + button with terminal prompt style
-- `$ ns ▸` prompt prefix
-
-**Footer:**
-- Already has family links ✅
-- Align font/size to canonical (10px mono)
-- Match centered canonical layout
-
-**Theme toggle:**
-- Add light/dark toggle (currently missing)
-
-**Accessibility:**
-- Add skip-nav link
-- Add `lang="en"`
-- Add `.sr-only`
-
-## Execution Order
-
-1. **Establish canonical** — write the shared CSS as a reference file
-2. **ns.lol first** — smallest codebase, already wrapping up, good proving ground
-3. **certs.lol second** — small changes, validate the tokens
-4. **yoke.lol last** — largest change, most complex, benefits from lessons in 2+3
+### preflight.lol (not yet built)
+Will use canonical tokens from day one. Orange accent.
 
 ## Non-Goals
 
