@@ -403,6 +403,73 @@ a:hover { text-decoration: underline }
 }
 ```
 
+### Rate Limit Pill
+
+Every tool MUST show a rate limit pill when the API returns `X-RateLimit-*` headers. The pill is a persistent indicator that helps users understand their remaining quota.
+
+**Behavior:**
+- Appears after the first API response that includes rate limit headers
+- Shows `{remaining}/{limit}` (e.g. `87/120`)
+- When exhausted (`remaining === 0`), shows countdown: `Resets in {N}m`
+- Clickable/hoverable to expand details (usage bar + reset info)
+- On server-rendered SPAs (no client-side fetch), render the pill server-side using the rate limit values from the response
+
+**Position & Shape:**
+- Fixed bottom-right corner, 16px inset from edges
+- Pill shape: `border-radius: 20px`
+- Small: `font-size: 11px`, `padding: 6px 14px`
+- Font: `--font-mono`
+- `z-index: 100`
+
+**Color States (based on % remaining):**
+- **Normal** (>25% remaining): `color: var(--dim)`, `border: 1px solid var(--border)`, `opacity: 0.7`
+- **Warning** (10-25% remaining): `color: var(--warn)`, `border-color: var(--warn)`, `opacity: 1`
+- **Danger** (<10% remaining or exhausted): `color: var(--err)`, `border-color: var(--err)`, `opacity: 1`
+- Transitions between states: `transition: opacity 0.3s, color 0.3s, border-color 0.3s`
+
+**Expanded Details (hover/click):**
+- Dropdown card below the pill
+- Background: `var(--surface-raised)`, border: `var(--border)`, radius: `var(--radius)`
+- Contains:
+  - Status label: "API usage" / "Running low" / "Rate limit reached" (colored by state)
+  - Usage bar: 4px tall, `var(--border)` track, fill colored by state
+  - Text: "{used} of {limit} used this hour" in `var(--dim)`, 11px
+  - When exhausted: "Resets in {N} mins" + self-host link if applicable
+
+**CSS Reference:**
+```css
+.rl-pill {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  z-index: 100;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s, color 0.3s, border-color 0.3s;
+}
+.rl-pill.warn { color: var(--warn); border-color: var(--warn); opacity: 1 }
+.rl-pill.danger { color: var(--err); border-color: var(--err); opacity: 1 }
+```
+
+**Canonical thresholds:**
+| State   | Condition                      | Appearance                |
+|---------|--------------------------------|---------------------------|
+| Normal  | remaining > 25% of limit      | Dim, subtle, low opacity  |
+| Warning | remaining 10-25% of limit     | Amber, full opacity       |
+| Danger  | remaining < 10% or exhausted  | Red, full opacity, border |
+
+**Implementation notes:**
+- Yoke (React SPA): `RateLimitPill` component reads headers from `api.ts` fetch responses
+- certs.lol / ns.lol (server-rendered + client-side fetch hybrid): render pill element in HTML, update via JS after fetch responses. For purely server-rendered pages, embed rate limit values in the HTML template
+- All tools parse the same three headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
 ## Per-Tool Change Map
 
 ### yoke.lol (largest change — React SPA + Tailwind)
