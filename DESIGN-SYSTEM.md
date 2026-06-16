@@ -38,11 +38,11 @@ Aligned across certs.lol and ns.lol as of 2026-06-15. Yoke.lol still uses its ow
 
   /* ─── Surfaces ──────────────────────── */
   --bg: #0a0a12;
-  --surface: #12121a;
-  --surface-raised: #1a1a24;
-  --surface-hover: #22222e;
-  --border: #1e1e2a;
-  --border-muted: #16161f;
+  --surface: #15151f;
+  --surface-raised: #1e1e2a;
+  --surface-hover: #26263a;
+  --border: #2a2a3a;
+  --border-muted: #1e1e2a;
 
   /* ─── Text ──────────────────────────── */
   --text: #e0e0ea;
@@ -317,6 +317,49 @@ yoke · certs · ns                              ← family links (omit current 
 ```
 
 **Class names:** `.footer-links` and `.footer-family` (NOT `.foot-links` / `.foot-family`).
+
+### Click-to-Copy Data Values
+
+Every data value a user might want to grab is copyable on click. This applies to all tools — DNS records, IPs, cert details, scores, headers, etc.
+
+```css
+.data-val {
+  cursor: pointer;
+  position: relative;
+  transition: color .15s;
+}
+.data-val:hover { color: var(--accent) }
+.data-val::after {
+  content: 'copied';
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-size: 9px;
+  color: var(--ok);
+  background: var(--surface-raised);
+  padding: 1px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+.data-val.copied::after { opacity: 1 }
+```
+
+JS pattern (add to all tools):
+```js
+document.querySelectorAll('.data-val').forEach(el => {
+  el.title = 'Click to copy';
+  el.addEventListener('click', function() {
+    navigator.clipboard.writeText(this.textContent.trim()).then(() => {
+      this.classList.add('copied');
+      setTimeout(() => this.classList.remove('copied'), 1200);
+    });
+  });
+});
+```
+
+The class name `.data-val` is canonical. Tools can extend with additional copyable elements but must use this base pattern.
 
 ### Cross-Link Hook
 

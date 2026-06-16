@@ -14,7 +14,6 @@ INFRA.md            — CF Workers, Fly probes, DNS, email, caching, security he
 FUNNEL.md           — Cross-linking rules, Yoke badges, family relationships
 INVARIANTS.md       — Shared invariants that apply to every tool
 PROBES.md           — Probe architecture, multi-region, User-Agent strategy
-staleness-check.sh  — Script to verify .ai/ docs match deployed state
 ```
 
 ## Usage

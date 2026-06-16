@@ -67,11 +67,20 @@
 
 ## Theme Toggle
 
-- [ ] `<button id="themeToggle" aria-label="Toggle theme">☀️</button>`
+- [ ] Segmented control: `<div class="theme-toggle" role="radiogroup">` with `.theme-opt` buttons
 - [ ] Fixed `top: 16px; right: 16px`
-- [ ] Emoji-only: `☀️` (dark mode) / `🌙` (light mode)
+- [ ] Word-based: "Dark" and "Light" — no emoji
+- [ ] Active state: `--accent` background, `--accent-fg` text, weight 600
 - [ ] localStorage key: `{tool}-theme`
 - [ ] Load order: localStorage → system preference → dark default
+
+## Click-to-Copy
+
+- [ ] All data values wrapped in `.data-val` class
+- [ ] Hover: `cursor: pointer`, color → `--accent`
+- [ ] Click: copies `textContent.trim()` to clipboard
+- [ ] "copied" toast via `::after` pseudo-element, 1.2s timeout
+- [ ] `title="Click to copy"` on all `.data-val` elements
 
 ## Rate Limit Pill
 

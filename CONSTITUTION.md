@@ -28,7 +28,7 @@ Every tool in the family shares: the same design language, the same terminal-fir
 
 The family has three first-class interfaces. None is secondary:
 
-1. **API** — `curl -s https://{tool}.lol/{domain} | jq` is the canonical interface. Content negotiation: browsers get HTML, API clients get JSON. `Accept: application/json` always returns structured data.
+1. **API** — `curl -s https://{tool}.lol/{domain}` is the canonical interface. Content negotiation: browsers get HTML, API clients get JSON. `Accept: application/json` always returns structured data.
 
 2. **Web UI** — The SPA. Terminal-style input (`$ {tool} ▸`), dark-mode-first, same data the API returns but pretty. Not a wrapper — it's the same Worker serving both.
 
