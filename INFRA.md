@@ -8,6 +8,44 @@
 - Token must have: `Workers Scripts:Edit`, `Workers Routes:Edit`, `Workers KV Storage:Edit` (if KV used), `D1:Edit` (if D1 used).
 - Worker route: `{tool}.lol/*` on the tool's zone.
 
+## Usage Tracking & Rate Limiting
+
+Every tool MUST implement:
+
+### Usage Tracking
+- Track API requests per endpoint (hits, errors, latency).
+- Store in D1 or KV depending on query needs.
+- Expose via an internal `/usage` admin dashboard (authenticated).
+
+### Rate Limiting
+- Per-IP rate limiting with configurable thresholds.
+- Cache-aware: cached results should not count against rate limits (or count at a lower weight).
+- Progressive enforcement: warn → throttle → block → PoW challenge.
+- Rate limit headers on every response:
+  ```
+  X-RateLimit-Limit: {max}
+  X-RateLimit-Remaining: {remaining}
+  X-RateLimit-Reset: {timestamp}
+  ```
+- Rate limit pill/indicator in the web UI when limits are approached.
+
+### Abuse Prevention
+- PoW challenges for sustained high-volume abuse (see CONSTITUTION.md).
+- SSRF protection on any endpoint that takes URLs or domains as input.
+- Timing-safe comparison for auth tokens (`timingSafeEqual`).
+- Input validation and sanitization on all user-supplied parameters.
+
+### Status Page
+Every tool MUST serve a `/status` page (or equivalent admin dashboard) that includes:
+- **Uptime/health**: current service status.
+- **Recent errors**: API error counts and types (4xx, 5xx) over recent windows.
+- **Rate limiting stats**: current enforcement levels, blocked IPs.
+- **Usage metrics**: requests per hour/day, endpoint breakdown.
+- **Probe health** (if applicable): status of Fly.io probe regions.
+
+This can be combined with the admin `/usage` dashboard. Authentication required — not public.
+Reference implementation: yoke.lol's `/usage` admin dashboard.
+
 ### Security Headers
 
 Every response MUST include:
