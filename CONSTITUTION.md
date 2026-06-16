@@ -24,6 +24,10 @@ Every tool in the family shares: the same design language, the same terminal-fir
 - No analytics beyond CF Analytics (privacy-preserving, no cookies).
 - Proof of Work for abuse prevention — computational cost, not bureaucratic friction.
 
+### Public Status Page
+
+Every tool exposes `/status` — a server-rendered HTML page showing the health of external API dependencies the tool relies on. No auth required, no client JS needed. This is how operators (and users) know whether the service is healthy without digging through logs. The status page must be styled consistently with the family design system (dark-mode-first, Inter + JetBrains Mono, same color tokens). If the tool tracks errors in KV or D1, the status page surfaces them. If not, it shows a simple heartbeat.
+
 ### Three Equal Interfaces
 
 The family has three first-class interfaces. None is secondary:
