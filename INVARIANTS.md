@@ -46,3 +46,8 @@ Rules that apply across every .lol tool. Product-specific invariants extend thes
 28. **Privacy page required.** `/privacy` on every tool.
 29. **Terms page required.** `/terms` on every tool.
 30. **CC BY 4.0 attribution where required.** (HIBP data, etc.)
+
+## Documentation
+
+31. **Feature ships → docs update in same commit.** When a user-facing feature changes (new command, renamed field, new endpoint, scoring change), every surface that documents or demonstrates it must be updated atomically. Stale docs are bugs, not tech debt.
+32. **Sample output matches current behavior.** Axis names, tier labels, terminal output, command signatures in docs must reflect what the tool actually produces. No old terminology, no outdated screenshots.
