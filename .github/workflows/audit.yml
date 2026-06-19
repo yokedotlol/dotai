@@ -42,9 +42,6 @@ jobs:
           path: vrfy-lol
         continue-on-error: true  # private repo — needs PAT for cross-repo access
 
-      - name: Install DNS tools
-        run: sudo apt-get update -qq && sudo apt-get install -yqq dnsutils
-
       - name: Run audit
         run: |
           chmod +x dotai/audit.sh

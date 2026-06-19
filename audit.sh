@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # .lol Family Audit — checks shared invariants across all tools
 # Usage: ./audit.sh [all|yoke|certs|ns|xhttp|vrfy] [--live|--repo|--both]
-# Requires: curl, dig, jq, grep
+# Requires: curl, jq, grep
 set -uo pipefail
 
 # ─── Colors ──────────────────────────────────────────────────────────
@@ -55,7 +55,11 @@ curl_json() {
 }
 
 dig_txt() {
-  dig +short TXT "$1" 2>/dev/null | tr -d '"'
+  # Use Cloudflare DoH instead of local dig (avoids VM DNS resolver timeouts)
+  local name="$1"
+  curl -s -m 5 -H "accept: application/dns-json" \
+    "https://cloudflare-dns.com/dns-query?name=${name}&type=TXT" 2>/dev/null | \
+    jq -r '.Answer[]?.data // empty' 2>/dev/null | tr -d '"'
 }
 
 has_header() {
@@ -142,7 +146,9 @@ run_live_checks() {
 
   # ── 6: DNSSEC ──
   local dnssec
-  dnssec=$(dig +short DS "$domain" 2>/dev/null)
+  dnssec=$(curl -s -m 5 -H "accept: application/dns-json" \
+    "https://cloudflare-dns.com/dns-query?name=${domain}&type=DS" 2>/dev/null | \
+    jq -r '.Answer[]?.data // empty' 2>/dev/null)
   if [ -n "$dnssec" ]; then
     pass 6 "DNSSEC enabled"
   else
@@ -177,7 +183,9 @@ run_live_checks() {
 
   # ── 9: CAA records ──
   local caa
-  caa=$(dig +short CAA "$domain" 2>/dev/null)
+  caa=$(curl -s -m 5 -H "accept: application/dns-json" \
+    "https://cloudflare-dns.com/dns-query?name=${domain}&type=CAA" 2>/dev/null | \
+    jq -r '.Answer[]?.data // empty' 2>/dev/null)
   if [ -n "$caa" ]; then
     pass 9 "CAA records present"
   else
