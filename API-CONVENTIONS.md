@@ -40,21 +40,20 @@ Every API response includes a `_meta` block:
 }
 ```
 
-**`full_report`** is included ONLY for feeder tools (certs.lol, ns.lol). Omit for standalone tools (vrfy.lol, preflight.lol). See FUNNEL.md.
+**`full_report`** is included ONLY for feeder tools (certs.lol, ns.lol). Omit for standalone tools (vrfy.lol, xhttp.lol). See FUNNEL.md.
 
 ## Error Responses
 
-Consistent error shape across all tools:
+Consistent error shape across all tools — flat object with `error` string and optional detail fields:
 
 ```json
 {
-  "error": {
-    "code": "INVALID_DOMAIN",
-    "message": "The domain 'not a domain' is not valid.",
-    "status": 400
-  }
+  "error": "The domain 'not a domain' is not valid.",
+  "code": "INVALID_DOMAIN"
 }
 ```
+
+HTTP status is conveyed by the response status code. Optional fields like `retry_after`, `detail`, or `input` may be included when relevant.
 
 ### Standard Error Codes
 
@@ -65,7 +64,7 @@ Consistent error shape across all tools:
 | `RATE_LIMITED` | 429 | Rate limit exceeded (include PoW challenge if applicable) |
 | `PROBE_BLOCKED` | 502 | Target site blocked all probe attempts |
 | `PROBE_ERROR` | 502 | Probe service error (timeout, crash) |
-| `UPSTREAM_ERROR` | 502 | Third-party API error (HIBP, Brandfetch, etc.) |
+| `UPSTREAM_ERROR` | 502 | Third-party API error |
 | `NOT_FOUND` | 404 | Unknown endpoint |
 | `INTERNAL_ERROR` | 500 | Unexpected error |
 
@@ -81,11 +80,8 @@ X-RateLimit-Reset: 1718488800
 ### PoW Challenge (429 response)
 ```json
 {
-  "error": {
-    "code": "RATE_LIMITED",
-    "message": "Rate limit exceeded. Solve the proof-of-work challenge to continue.",
-    "status": 429
-  },
+  "error": "Rate limit exceeded. Solve the proof-of-work challenge to continue.",
+  "code": "RATE_LIMITED",
   "pow": {
     "challenge": "a1b2c3d4...",
     "difficulty": 4,

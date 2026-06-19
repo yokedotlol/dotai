@@ -19,7 +19,7 @@ Every tool MUST implement:
 
 ### Rate Limiting
 - Per-IP rate limiting with configurable thresholds.
-- Cache-aware: cached results should not count against rate limits (or count at a lower weight).
+- Cache-aware: cached results do not count against rate limits. The rate-limit check is skipped entirely when a valid cache entry exists.
 - Progressive enforcement: warn → throttle → block → PoW challenge.
 - Rate limit headers on every response:
   ```
@@ -35,15 +35,20 @@ Every tool MUST implement:
 - Timing-safe comparison for auth tokens (`timingSafeEqual`).
 - Input validation and sanitization on all user-supplied parameters.
 
-### Status Page
-Every tool MUST serve a `/status` page (or equivalent admin dashboard) that includes:
+### Status & Admin Dashboard
+
+Two separate surfaces:
+
+**Public health endpoint** (`/health` or `/status`): simple heartbeat — returns `{"status":"ok"}` with no auth required. This is what uptime monitors and users hit. See also CONSTITUTION.md.
+
+**Admin dashboard** (`/usage`): authenticated operational dashboard that includes:
 - **Uptime/health**: current service status.
 - **Recent errors**: API error counts and types (4xx, 5xx) over recent windows.
 - **Rate limiting stats**: current enforcement levels, blocked IPs.
 - **Usage metrics**: requests per hour/day, endpoint breakdown.
 - **Probe health** (if applicable): status of Fly.io probe regions.
 
-This can be combined with the admin `/usage` dashboard. Authentication required — not public.
+Authentication required — not public.
 Reference implementation: yoke.lol's `/usage` admin dashboard.
 
 ### Security Headers

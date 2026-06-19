@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 # .lol Family Audit — checks shared invariants across all tools
 # Usage: ./audit.sh [all|yoke|certs|ns|xhttp|vrfy] [--live|--repo|--both]
-# Requires: curl, jq, grep
+# Requires: bash 4+, curl, jq, grep
 set -uo pipefail
+
+# ─── Bash Version Guard ─────────────────────────────────────────────
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+  echo "Error: audit.sh requires Bash 4+ (you have ${BASH_VERSION})." >&2
+  echo "  macOS: brew install bash" >&2
+  echo "  Then run: /opt/homebrew/bin/bash audit.sh" >&2
+  exit 1
+fi
 
 # ─── Colors ──────────────────────────────────────────────────────────
 R='\033[0;31m' G='\033[0;32m' Y='\033[0;33m' B='\033[0;34m'

@@ -102,7 +102,7 @@
 
 - [ ] `.hook` styled link to yoke.lol full report
 - [ ] `_meta.full_report` in API JSON responses
-- [ ] Standalone tools (vrfy, preflight): NO hook, NO `full_report`
+- [ ] Standalone tools (vrfy, xhttp): NO hook, NO `full_report`
 
 ## Infrastructure
 

@@ -593,7 +593,7 @@ Largest change — React SPA + Tailwind.
 Deployed and working. Has its own SPA. Needs alignment pass for canonical design tokens. Pink/magenta accent.
 
 ### xhttp.lol ⏳ (deployed, not yet aligned)
-Deployed and working. SPA built into Worker response. Needs alignment pass for canonical design tokens. Orange accent. Formerly preflight.lol.
+Deployed and working. SPA built into Worker response. Needs alignment pass for canonical design tokens. Orange accent. Renamed from preflight.lol to xhttp.lol.
 
 ## Non-Goals
 
