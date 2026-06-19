@@ -6,10 +6,10 @@
 certs.lol ──→ yoke.lol
 ns.lol    ──→ yoke.lol
 vrfy.lol       (standalone — no funnel to yoke)
-preflight.lol  (standalone — no funnel to yoke)
+xhttp.lol      (standalone — links to yoke for full report, but not a feeder)
 ```
 
-**Yoke is the hub.** certs.lol and ns.lol are feeder tools that link users to Yoke for the full picture. vrfy.lol and preflight.lol are standalone — they do NOT funnel to Yoke.
+**Yoke is the hub.** certs.lol and ns.lol are feeder tools that link users to Yoke for the full picture. vrfy.lol and xhttp.lol are standalone — they do NOT funnel to Yoke.
 
 ## Cross-Linking Rules
 
@@ -28,11 +28,10 @@ preflight.lol  (standalone — no funnel to yoke)
 - No `_meta.full_report` field
 - May link to certs.lol or ns.lol for DNS/TLS context of the mail server, but this is informational, not a funnel
 
-### preflight.lol (standalone)
-- No links to Yoke in results or API
-- May link to certs.lol for TLS details (`TLS version: ... → deep dive on certs.lol`)
-- May link to ns.lol for DNS context
-- These are informational cross-references, not funnels
+### xhttp.lol (standalone, formerly preflight.lol)
+- Links to yoke.lol for full report, certs.lol for TLS, ns.lol for DNS in `_meta.links`
+- These are informational cross-references, not a feeder funnel
+- The HTTP response debugger: CORS, CSP, security headers, redirects, cache
 
 ## Yoke Badges
 
@@ -61,7 +60,7 @@ Every tool includes a family links section in its footer linking to siblings. Th
 </div>
 ```
 
-When vrfy.lol and preflight.lol launch, add them to the family links across all tools.
+When vrfy.lol and xhttp.lol go live, add them to the family links across all tools.
 
 ## API Cross-References
 
@@ -83,7 +82,7 @@ For feeder tools (certs.lol, ns.lol), every API response includes:
 }
 ```
 
-For standalone tools (vrfy.lol, preflight.lol), `full_report` is omitted:
+For standalone tools (vrfy.lol, xhttp.lol), `full_report` is omitted:
 
 ```json
 {

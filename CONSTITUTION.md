@@ -10,10 +10,10 @@ Developer tools that respect developers. Each tool does one thing well, gives yo
 certs.lol ──→ yoke.lol    (TLS scanner → hub)
 ns.lol    ──→ yoke.lol    (DNS toolkit → hub)
 vrfy.lol       standalone  (email validation)
-preflight.lol  standalone  (pre-launch checks)
+xhttp.lol      standalone  (HTTP response debugger)
 ```
 
-**Yoke is the hub.** certs.lol and ns.lol are feeder tools that link users to Yoke for the full picture. vrfy.lol and preflight.lol are standalone — they don't funnel to Yoke.
+**Yoke is the hub.** certs.lol and ns.lol are feeder tools that link users to Yoke for the full picture. vrfy.lol and xhttp.lol are standalone — they don't funnel to Yoke.
 
 Every tool in the family shares: the same design language, the same terminal-first UX, the same API conventions, the same CLI patterns, and the same infrastructure standards. See the sister docs for details.
 
@@ -40,9 +40,13 @@ The family has three first-class interfaces. None is secondary:
 
 ### Self-Hosting
 
-**Yoke self-hosting is first-class.** Yoke is designed to be self-hostable — run your own instance against your own domains. This means: no hard dependencies on external services that can't be swapped, documented environment variables, Docker-friendly, and the API is the product (not the hosted instance).
+**Current path (Option A — ship now):** Yoke-only self-host. Yoke is designed to be self-hostable — run your own instance against your own domains. No hard dependencies on external services that can't be swapped, documented environment variables, Docker-friendly, and the API is the product (not the hosted instance). Satellites (certs, ns, vrfy, xhttp) are open source — self-hosting them is possible but best-effort.
 
-**Feeder tools (certs.lol, ns.lol) are best-effort for self-hosting.** They work great as hosted services and their APIs are fully open, but self-hosting isn't a primary design goal. If you can run a CF Worker, you can run them — but we don't go out of our way to make it easy.
+**North star (Option B):** Full white-label stack. Dedicated domain with subdomains per tool (e.g. ns.yoke-test.lol, certs.yoke-test.lol), fully self-hostable and white-labelable. Everything works out of the box as a cohesive self-hosted suite.
+
+**Rejected (Option C):** Separate codebases or versions for self-hosting vs production.
+
+**Constraint:** Nothing deployed now can be fundamentally incompatible with Option B. Every satellite integration must be behind an interface where the backing implementation (CF binding vs HTTP call vs localhost) is swappable by config, not by code change. B should be additive, not a rewrite.
 
 ### POST-Only for PII
 - Email addresses, personal identifiers never appear in URLs.
@@ -63,6 +67,8 @@ The family has three first-class interfaces. None is secondary:
 ### Open Core Where Applicable
 - MIT engine + proprietary extensions via CF Service Bindings.
 - Open source by default. Monetization pending conflicts review.
+- **vrfy.lol model:** Open source validation engine (MIT) + closed-source existence plugin (proprietary). Worker has optional `EXISTENCE_SERVICE` binding → calls separate closed-source existence Worker. If binding absent, `existence: null`. Self-hosters get basic validation. Production gets everything.
+- **Production service bindings:** Yoke calls satellite workers via CF Service Bindings (perf win, no egress). Satellites stay fully independent — they work without yoke. The binding is an optimization, not a dependency.
 
 ## Brand DNA
 

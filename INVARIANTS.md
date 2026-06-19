@@ -30,7 +30,7 @@ Rules that apply across every .lol tool. Product-specific invariants extend thes
 18. **JSON by default for API clients.** Content negotiation via `Accept` header.
 19. **`_meta` block in every response.** Tool name, version, timestamp.
 20. **Feeder tools include `_meta.full_report`.** Links to yoke.lol/{domain}.
-21. **Standalone tools (vrfy, preflight) do NOT include `full_report`.**
+21. **Standalone tools (vrfy) do NOT include `full_report`.** xhttp includes `_meta.links` with cross-references but is not a feeder tool.
 22. **HTTP status codes are meaningful.** 200=ok, 400=bad input, 429=rate limit, 502=upstream error.
 
 ## Infrastructure

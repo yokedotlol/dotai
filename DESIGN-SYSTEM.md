@@ -114,7 +114,7 @@ Each tool keeps its own accent — this is identity, not drift:
 | **certs.lol** | `#9b8afb` (purple) | `#7c3aed` | Security — distinct, premium |
 | **ns.lol** | `#22d3ee` (cyan) | `#0891b2` | DNS — fast, technical |
 | **vrfy.lol** | `#f0abfc` (pink/magenta) | `#c026d3` | Email — warm, different |
-| **preflight.lol** | `#fb923c` (orange) | `#ea580c` | HTTP — active, urgent |
+| **xhttp.lol** | `#fb923c` (orange) | `#ea580c` | HTTP — active, urgent |
 
 ### Yoke's extended themes
 
@@ -589,11 +589,11 @@ Largest change — React SPA + Tailwind.
 **Preserved (no changes):**
 - 12-theme system, masonry panel grid, score visualizations, PDF reports, share cards/OG images, tab system, compare view, SSE streaming, CLI/docs pages
 
-### vrfy.lol (not yet built)
-Will use canonical tokens from day one. Pink/magenta accent.
+### vrfy.lol ⏳ (deployed, not yet aligned)
+Deployed and working. Has its own SPA. Needs alignment pass for canonical design tokens. Pink/magenta accent.
 
-### preflight.lol (not yet built)
-Will use canonical tokens from day one. Orange accent.
+### xhttp.lol ⏳ (deployed, not yet aligned)
+Deployed and working. SPA built into Worker response. Needs alignment pass for canonical design tokens. Orange accent. Formerly preflight.lol.
 
 ## Non-Goals
 
