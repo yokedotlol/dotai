@@ -31,7 +31,6 @@ jobs:
         with:
           repository: yokedotlol/ns-lol
           path: ns-lol
-        continue-on-error: true  # private repo — needs PAT for cross-repo access
       - uses: actions/checkout@v4
         with:
           repository: yokedotlol/xhttp
@@ -40,7 +39,6 @@ jobs:
         with:
           repository: yokedotlol/vrfy-lol
           path: vrfy-lol
-        continue-on-error: true  # private repo — needs PAT for cross-repo access
 
       - name: Run audit
         run: |
