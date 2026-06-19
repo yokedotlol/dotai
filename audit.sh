@@ -100,7 +100,8 @@ run_live_checks() {
   fi
 
   # ── Security headers (part of infra) ──
-  local sec_headers=("x-content-type-options" "x-frame-options" "referrer-policy" "content-security-policy")
+  # XFO and CSP frame-ancestors are interchangeable — CSP supersedes XFO per spec
+  local sec_headers=("x-content-type-options" "referrer-policy")
   local sec_pass=true
   local sec_missing=""
   for sh in "${sec_headers[@]}"; do
@@ -109,8 +110,32 @@ run_live_checks() {
       sec_missing="${sec_missing} ${sh}"
     fi
   done
+
+  # Check XFO or CSP frame-ancestors (either satisfies clickjacking protection)
+  if has_header "$hdrs" "x-frame-options"; then
+    : # XFO present
+  elif has_header "$hdrs" "content-security-policy"; then
+    local csp_val
+    csp_val=$(get_header "$hdrs" "content-security-policy")
+    if echo "$csp_val" | grep -qi "frame-ancestors"; then
+      : # CSP frame-ancestors supersedes XFO
+    else
+      sec_pass=false
+      sec_missing="${sec_missing} x-frame-options"
+    fi
+  else
+    sec_pass=false
+    sec_missing="${sec_missing} x-frame-options"
+  fi
+
+  # CSP (any form)
+  if ! has_header "$hdrs" "content-security-policy"; then
+    sec_pass=false
+    sec_missing="${sec_missing} content-security-policy"
+  fi
+
   if $sec_pass; then
-    pass "—" "Security headers present (XCTO, XFO, RP, CSP)"
+    pass "—" "Security headers present (XCTO, XFO/frame-ancestors, RP, CSP)"
   else
     fail "—" "Missing security headers:${sec_missing}"
   fi
@@ -208,43 +233,45 @@ run_live_checks() {
       fail 18 "Content-Type: $api_ct (expected JSON)"
     fi
 
-    # 19: _meta block
-    local meta
-    meta=$(curl_json "${domain}${api_path}" | jq '._meta' 2>/dev/null)
-    if [ "$meta" != "null" ] && [ -n "$meta" ]; then
-      pass 19 "_meta block present"
-
-      # 20/21: full_report based on type
-      local has_full
-      has_full=$(echo "$meta" | jq -r '.full_report // empty' 2>/dev/null)
-      case "$type" in
-        feeder|crossref)
-          if [ -n "$has_full" ]; then
-            pass 20 "_meta.full_report present (${type})"
-          else
-            # crossref tools use _meta.links.full_report
-            local links_full
-            links_full=$(echo "$meta" | jq -r '.links.full_report // empty' 2>/dev/null)
-            if [ -n "$links_full" ]; then
-              pass 20 "_meta.links.full_report present (${type})"
-            else
-              fail 20 "No full_report link (${type} tool should have one)"
-            fi
-          fi
-          ;;
-        standalone)
-          if [ -z "$has_full" ]; then
-            pass 21 "No full_report (standalone — correct)"
-          else
-            fail 21 "Standalone tool should NOT have full_report"
-          fi
-          ;;
-        hub)
-          skip 20 "Hub tool — full_report N/A"
-          ;;
-      esac
+    # 19: _meta block (skip for hub — health endpoint isn't a domain scan)
+    if [ "$type" = "hub" ]; then
+      skip 19 "_meta N/A for hub health endpoint"
+      skip 20 "Hub tool — full_report N/A"
     else
-      fail 19 "No _meta block in API response"
+      local meta
+      meta=$(curl_json "${domain}${api_path}" | jq '._meta' 2>/dev/null)
+      if [ "$meta" != "null" ] && [ -n "$meta" ]; then
+        pass 19 "_meta block present"
+
+        # 20/21: full_report based on type
+        local has_full
+        has_full=$(echo "$meta" | jq -r '.full_report // empty' 2>/dev/null)
+        case "$type" in
+          feeder|crossref)
+            if [ -n "$has_full" ]; then
+              pass 20 "_meta.full_report present (${type})"
+            else
+              # crossref tools use _meta.links.full_report
+              local links_full
+              links_full=$(echo "$meta" | jq -r '.links.full_report // empty' 2>/dev/null)
+              if [ -n "$links_full" ]; then
+                pass 20 "_meta.links.full_report present (${type})"
+              else
+                fail 20 "No full_report link (${type} tool should have one)"
+              fi
+            fi
+            ;;
+          standalone)
+            if [ -z "$has_full" ]; then
+              pass 21 "No full_report (standalone — correct)"
+            else
+              fail 21 "Standalone tool should NOT have full_report"
+            fi
+            ;;
+        esac
+      else
+        fail 19 "No _meta block in API response"
+      fi
     fi
   else
     skip 17 "No API endpoint defined for $name"
@@ -252,14 +279,21 @@ run_live_checks() {
     skip 19 "No API endpoint defined for $name"
   fi
 
-  # ── MTA-STS ──
-  local mtasts_status
-  mtasts_status=$(curl -s -o /dev/null -w "%{http_code}" -m 5 "https://mta-sts.${domain}/.well-known/mta-sts.txt" 2>/dev/null)
-  if [ "$mtasts_status" = "200" ]; then
-    pass "—" "MTA-STS endpoint responds"
-  else
-    warn "—" "MTA-STS returns $mtasts_status"
-  fi
+  # ── MTA-STS (only meaningful for domains that receive email) ──
+  case "$domain" in
+    yoke.lol|certs.lol)
+      local mtasts_status
+      mtasts_status=$(curl -s -o /dev/null -w "%{http_code}" -m 5 "https://mta-sts.${domain}/.well-known/mta-sts.txt" 2>/dev/null)
+      if [ "$mtasts_status" = "200" ]; then
+        pass "—" "MTA-STS endpoint responds"
+      else
+        warn "—" "MTA-STS returns $mtasts_status"
+      fi
+      ;;
+    *)
+      skip "—" "MTA-STS N/A (non-email domain)"
+      ;;
+  esac
 
   # ── Infrastructure pages ──
   for page in robots.txt sitemap.xml; do
@@ -318,20 +352,18 @@ run_repo_checks() {
     fail 23 "No .github/workflows directory"
   fi
 
-  # ── 26: .ai/ in .gitignore ──
-  if [ -f "$repo_dir/.gitignore" ]; then
-    if grep -q "\.ai/" "$repo_dir/.gitignore" 2>/dev/null || grep -q "\.ai/\*" "$repo_dir/.gitignore" 2>/dev/null; then
-      pass 26 ".ai/ work products in .gitignore"
+  # ── 26: .ai/ committed (intentional — agentic context framework) ──
+  if [ -d "$repo_dir/.ai" ]; then
+    # Verify it's tracked, not ignored
+    local ai_ignored
+    ai_ignored=$(cd "$repo_dir" && git check-ignore .ai/ 2>/dev/null || true)
+    if [ -n "$ai_ignored" ]; then
+      warn 26 ".ai/ is gitignored — should be committed (agentic context framework)"
     else
-      # Check if .ai exists but isn't ignored
-      if [ -d "$repo_dir/.ai" ]; then
-        warn 26 ".ai/ directory exists but not in .gitignore"
-      else
-        skip 26 "No .ai/ directory"
-      fi
+      pass 26 ".ai/ committed (agentic context framework)"
     fi
   else
-    warn 26 "No .gitignore file"
+    warn 26 "No .ai/ directory"
   fi
 
   # ── .ai/ structure ──
