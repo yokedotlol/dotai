@@ -5,9 +5,9 @@
 
 ## Setup
 
-- [ ] Add dotai submodule: `git submodule add https://github.com/yokedotlol/dotai.git .ai/base`
-- [ ] Create product `.ai/` files: `CONSTITUTION.md`, `INVARIANTS.md`, `STATE.md`, `DECISIONS.md`, `GOTCHAS.md`
-- [ ] Verify `.ai/` product files are tracked in git (not gitignored)
+- [ ] Add dotcontext submodule: `git submodule add https://github.com/yokedotlol/dotcontext.git .context/base`
+- [ ] Create product `.context/` files: `CONSTITUTION.md`, `INVARIANTS.md`, `STATE.md`, `DECISIONS.md`, `GOTCHAS.md`
+- [ ] Verify `.context/` product files are tracked in git (not gitignored)
 
 ## CSS Tokens
 

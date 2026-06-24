@@ -368,36 +368,36 @@ run_repo_checks() {
     fail 23 "No .github/workflows directory"
   fi
 
-  # ── 26: .ai/ committed (intentional — agentic context framework) ──
-  if [ -d "$repo_dir/.ai" ]; then
+  # ── 26: .context/ committed (intentional — agentic context framework) ──
+  if [ -d "$repo_dir/.context" ]; then
     # Verify it's tracked, not ignored
     local ai_ignored
-    ai_ignored=$(cd "$repo_dir" && git check-ignore .ai/ 2>/dev/null || true)
+    ai_ignored=$(cd "$repo_dir" && git check-ignore .context/ 2>/dev/null || true)
     if [ -n "$ai_ignored" ]; then
-      warn 26 ".ai/ is gitignored — should be committed (agentic context framework)"
+      warn 26 ".context/ is gitignored — should be committed (agentic context framework)"
     else
-      pass 26 ".ai/ committed (agentic context framework)"
+      pass 26 ".context/ committed (agentic context framework)"
     fi
   else
-    warn 26 "No .ai/ directory"
+    warn 26 "No .context/ directory"
   fi
 
-  # ── .ai/ structure ──
-  if [ -d "$repo_dir/.ai" ]; then
+  # ── .context/ structure ──
+  if [ -d "$repo_dir/.context" ]; then
     local ai_files=("CONSTITUTION.md" "INVARIANTS.md" "STATE.md" "DECISIONS.md" "GOTCHAS.md")
     local ai_missing=""
     for f in "${ai_files[@]}"; do
-      if [ ! -f "$repo_dir/.ai/$f" ]; then
+      if [ ! -f "$repo_dir/.context/$f" ]; then
         ai_missing="${ai_missing} ${f}"
       fi
     done
     if [ -z "$ai_missing" ]; then
-      pass "—" ".ai/ structure complete"
+      pass "—" ".context/ structure complete"
     else
-      warn "—" "Missing .ai/ files:${ai_missing}"
+      warn "—" "Missing .context/ files:${ai_missing}"
     fi
   else
-    warn "—" "No .ai/ directory"
+    warn "—" "No .context/ directory"
   fi
 
   # ── git hooks ──

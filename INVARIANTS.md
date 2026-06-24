@@ -1,6 +1,6 @@
 # INVARIANTS.md — Shared Invariants
 
-Rules that apply across every .lol tool. Product-specific invariants extend these in `.ai/INVARIANTS.md`.
+Rules that apply across every .lol tool. Product-specific invariants extend these in `.context/INVARIANTS.md`.
 
 ## Non-Negotiable
 
@@ -38,7 +38,7 @@ Rules that apply across every .lol tool. Product-specific invariants extend thes
 23. **GitHub Actions for CI/CD.** Typecheck → test → build → deploy.
 24. **Scoped CF API tokens.** Minimum necessary permissions per tool.
 25. **No secrets in git history.** Ever. Use git-filter-repo if found.
-26. **`.ai/` work product files in `.gitignore`.** Don't ship to public repos.
+26. **`.context/` work product files in `.gitignore`.** Don't ship to public repos.
 27. **Fly probes use auth.** Bearer token or query key. No open endpoints.
 
 ## Legal

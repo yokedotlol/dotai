@@ -1,7 +1,7 @@
-# .ai — Shared Context Framework for the .lol Family
+# .context — Shared Context Framework for the .lol Family
 
 > Base-layer conventions for AI agents working on any .lol tool.  
-> Include as a git submodule at `.ai/base/` in each product repo.
+> Include as a git submodule at `.context/base/` in each product repo.
 
 ## Structure
 
@@ -21,13 +21,13 @@ PROBES.md           — Probe architecture, multi-region, User-Agent strategy
 Each product repo includes this as a submodule:
 
 ```bash
-git submodule add https://github.com/yokedotlol/dotai .ai/base
+git submodule add https://github.com/yokedotlol/dotcontext .context/base
 ```
 
 Product-specific overrides live alongside:
 
 ```
-.ai/
+.context/
   base/              ← this submodule
   STATE.md           — What's deployed, what's in progress
   DECISIONS.md       — Product-specific architectural choices
@@ -35,4 +35,4 @@ Product-specific overrides live alongside:
   INVARIANTS.md      — Extends shared (e.g. "Yoke has 12 themes")
 ```
 
-Agent pattern: read `.ai/base/*` for family context, then `.ai/*.md` for product overrides.
+Agent pattern: read `.context/base/*` for family context, then `.context/*.md` for product overrides.
